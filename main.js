@@ -4,6 +4,7 @@ const mineflayer = require('mineflayer');
 const vec3 = require('vec3');
 const navigatePlugin = require('mineflayer-navigate')(mineflayer);
 
+const potions = require('./potions');
 const weapons = require('./weapons');
 
 require('dotenv').config();
@@ -77,15 +78,39 @@ bot.on('entityMoved', entity => {
 });
 
 bot.on('health', () => {
-	if (bot.health < 15) {
+	if (bot.health < 20) {
 		const hotbar = bot.inventory.slots.slice(-9);
-		const potIndex = hotbar.findIndex(
-			item => item && item.type === mcData.itemsByName['potion'].id
+		const bestPot = hotbar.reduce(
+			(bestPot, item, index) => {
+				if (item && item.type === mcData.itemsByName['potion'].id) {
+					const potion = potions[item.metadata];
+
+					if (!potion) {
+						return bestPot;
+					}
+
+					const willWasteHealing = potion.healing + bot.health > 20;
+
+					if (
+						potion.splash &&
+						potion.healing > bestPot.healing &&
+						!willWasteHealing
+					) {
+						return { healing: potion.healing, index };
+					}
+				}
+
+				return bestPot;
+			},
+			{ healing: -Infinity, index: -1 }
 		);
-		if (potIndex !== -1) {
+
+		const hasPot = bestPot.index !== -1;
+
+		if (hasPot) {
 			state.healing = true;
 			bot.lookAt(bot.entity.position, undefined, () => {
-				bot.setQuickBarSlot(potIndex);
+				bot.setQuickBarSlot(bestPot.index);
 				bot.activateItem();
 				setTimeout(() => (state.healing = false), 100);
 			});
