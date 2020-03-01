@@ -4,6 +4,8 @@ const mineflayer = require('mineflayer');
 const vec3 = require('vec3');
 const navigatePlugin = require('mineflayer-navigate')(mineflayer);
 
+const weapons = require('./weapons');
+
 require('dotenv').config();
 
 const [host, port] = process.argv.slice(2);
@@ -47,12 +49,26 @@ bot.on('entityMoved', entity => {
 
 		if (bot.entity.position.distanceTo(state.enemy.position) < 2.7) {
 			const hotbar = bot.inventory.slots.slice(-9);
-			const weaponIndex = hotbar.findIndex(
-				item => item && item.type === mcData.itemsByName['wooden_axe'].id
+
+			const bestWeapon = hotbar.reduce(
+				(bestWeapon, item, index) => {
+					if (!item) {
+						return bestWeapon;
+					}
+
+					if (item.name in weapons) {
+						const damage = weapons[item.name];
+
+						return damage > bestWeapon.damage ? { index, damage } : bestWeapon;
+					}
+
+					return bestWeapon;
+				},
+				{ damage: -Infinity, index: -1 }
 			);
 
-			if (weaponIndex !== -1) {
-				bot.setQuickBarSlot(weaponIndex);
+			if (bestWeapon.index !== -1) {
+				bot.setQuickBarSlot(bestWeapon.index);
 			}
 
 			attack();
