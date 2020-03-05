@@ -1,39 +1,84 @@
 const throttle = require('lodash/throttle');
 const mcData = require('minecraft-data')('1.8.9');
 const mineflayer = require('mineflayer');
-const vec3 = require('vec3');
-const navigatePlugin = require('mineflayer-navigate')(mineflayer);
+const { performance } = require('perf_hooks');
+const Vec3 = require('vec3');
+const util = require('util');
 
+const { subtract, divide } = require('./utils/vec3');
 const potions = require('./potions');
-const weapons = require('./weapons');
+const states = [
+	'attacking',
+	'bowing',
+	'chasing',
+	'falling',
+	'waiting',
+	'healing'
+].reduce(
+	(states, state) => ({ ...states, [state]: require(`./states/${state}`) }),
+	{}
+);
 
 require('dotenv').config();
 
-const [host, port] = process.argv.slice(2);
+const [host, port, name] = process.argv.slice(2);
 
 const bot = mineflayer.createBot({
 	host,
-	username: 'dawd', //process.env.MC_USERNAME,
+	username: name || 'bot', //process.env.MC_USERNAME,
 	// password: process.env.MC_PASSWORD,
 	port,
 	version: '1.8.9'
 });
 
+bot.look = util.promisify(bot.look);
+bot.lookAt = util.promisify(bot.lookAt);
+
+bot.on('error', err => console.log(err));
+
 let state = 'waiting';
-let enemy;
-let hotbar;
 
-const attack = throttle(() => {
-	bot.attack(enemy);
-	bot.swingArm();
-}, 300);
+const metadata = {
+	enemy: undefined,
+	enemyVelocity: new Vec3(),
+	hotbary: [],
+	bestPotSlot: -1,
+	arrowSpeed: 0.038,
+	arrowGravity: 0.0000056
+};
 
-const add = (position, { x = 0, y = 0, z = 0 }) =>
-	vec3(position).add({ x, y, z });
+let prevState;
+
+const run = async () => {
+	metadata.hotbar = bot.inventory.slots.slice(-9);
+
+	if (prevState !== state) {
+		bot.chat(`Bot state: ${state}`);
+	}
+
+	prevState = state;
+
+	await states[state].execute(bot, metadata);
+
+	state = states[state].transition(bot, metadata);
+
+	metadata.bestPotSlot = bestPot().slot;
+
+	if (metadata.bestPotSlot !== -1) {
+		state = 'healing';
+	}
+
+	if (bot.entity.velocity.y === -20) {
+		state = 'falling';
+	}
+
+	computeEnemyVelocity();
+	setImmediate(run);
+};
 
 const bestPot = () =>
-	hotbar.reduce(
-		(bestPot, item, index) => {
+	metadata.hotbar.reduce(
+		(bestPot, item, slot) => {
 			if (item && item.type === mcData.itemsByName['potion'].id) {
 				const potion = potions[item.metadata];
 
@@ -48,129 +93,54 @@ const bestPot = () =>
 					potion.healing > bestPot.healing &&
 					!willWasteHealing
 				) {
-					return { healing: potion.healing, index };
+					return { healing: potion.healing, slot };
 				}
 			}
 
 			return bestPot;
 		},
-		{ healing: -Infinity, index: -1 }
+		{ healing: -Infinity, slot: -1 }
 	);
 
-const shouldHeal = () => bestPot().index !== -1;
+let previousEnemyPosition = new Vec3();
+let before = 0;
 
-const lookAt = (...args) => {
-	return new Promise(resolve => {
-		bot.lookAt(...args, resolve);
-	});
-};
-
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const run = async () => {
-	hotbar = bot.inventory.slots.slice(-9);
-
-	console.log(state + '');
-	// react to state
-	switch (state) {
-		case 'waiting':
-			break;
-		case 'healing':
-			const pot = bestPot();
-			if (pot.index !== -1) {
-				await lookAt(bot.entity.position, undefined);
-				bot.setQuickBarSlot(pot.index);
-				bot.activateItem();
-			}
-			break;
-		case 'attacking':
-			bot.lookAt(add(enemy.position, { y: enemy.height }));
-			const bestWeapon = hotbar.reduce(
-				(bestWeapon, item, index) => {
-					if (!item) {
-						return bestWeapon;
-					}
-
-					if (item.name in weapons) {
-						const damage = weapons[item.name];
-
-						return damage > bestWeapon.damage ? { index, damage } : bestWeapon;
-					}
-
-					return bestWeapon;
-				},
-				{ damage: -Infinity, index: -1 }
-			);
-
-			if (bestWeapon.index !== -1) {
-				bot.setQuickBarSlot(bestWeapon.index);
-			}
-
-			bot.setControlState('sprint', false);
-			bot.setControlState('jump', false);
-			bot.setControlState(
-				'forward',
-				bot.entity.position.distanceTo(enemy.position) > 1.5
-			);
-
-			attack();
-			break;
-		case 'chasing':
-			bot.lookAt(add(enemy.position, { y: enemy.height }));
-			bot.setControlState('sprint', true);
-			bot.setControlState('jump', true);
-			bot.setControlState('forward', true);
-			break;
-		default:
-			break;
+const computeEnemyVelocity = throttle(() => {
+	if (metadata.enemy) {
+		const now = performance.now();
+		const timePassed = now - before;
+		metadata.enemyVelocity = divide(
+			subtract(metadata.enemy.position, previousEnemyPosition),
+			timePassed
+		);
+		previousEnemyPosition = { ...metadata.enemy.position };
+		before = now;
 	}
-
-	// update state
-	switch (state) {
-		case 'waiting':
-			if (enemy) {
-				state = 'chasing';
-			}
-			break;
-		case 'chasing':
-			if (bot.entity.position.distanceTo(enemy.position) < 2.7) {
-				state = 'attacking';
-			}
-			if (shouldHeal()) {
-				state = 'healing';
-			}
-			break;
-		case 'attacking':
-			if (bot.entity.position.distanceTo(enemy.position) > 2.7) {
-				state = 'chasing';
-			}
-			if (shouldHeal()) {
-				state = 'healing';
-			}
-			break;
-		case 'healing':
-			state =
-				bot.entity.position.distanceTo(enemy.position) < 2.7
-					? 'attacking'
-					: 'chasing';
-			break;
-	}
-
-	setTimeout(run, 200);
-};
-
-run();
-
-bot.on('entityMoved', entity => {
-	if (entity.type === 'player') {
-		enemy = entity;
-	}
-});
+}, 100);
 
 bot.on('health', () => {
-	bot.chat(`bot hp: ${bot.health}`);
+	bot.chat(`Bot hp: ${bot.health}`);
 });
 
-bot.on('error', err => console.log(err));
+bot.on('entityUpdate', entity => {
+	if (metadata.enemy && entity.username === metadata.enemy.username) {
+		metadata.enemy = entity;
+	}
+});
+
+bot.on('spawn', () => setTimeout(run, 1000));
+
+bot.on('chat', (_, message) => {
+	if (message === 'bow' && metadata.hotbar) {
+		const hasBow = metadata.hotbar.some(
+			item => item && item.type === mcData.itemsByName['bow'].id
+		);
+		const hasArrows = bot.inventory.slots.some(
+			item => item && item.type === mcData.itemsByName['arrow'].id
+		);
+
+		if (hasBow && hasArrows) {
+			state = 'bowing';
+		}
+	}
+});
