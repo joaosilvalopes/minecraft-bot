@@ -11,12 +11,12 @@ class Bowing extends State {
 		bot.setControlState('jump', false);
 		bot.setControlState('forward', false);
 
-		const bowIndex = metadata.hotbar.findIndex(
+		const bowIndex = bot.inventory.slots.findIndex(
 			item => item && item.type === mcData.itemsByName['bow'].id
 		);
 
 		if (bowIndex !== -1) {
-			bot.setQuickBarSlot(bowIndex);
+			await bot.fromSlotToHand(bowIndex);
 			bot.activateItem();
 			const distance = metadata.enemy.position.distanceTo(bot.entity.position);
 			const horizontalDistance = new Vec3({
@@ -57,7 +57,7 @@ class Bowing extends State {
 	}
 
 	transitionImpl(bot, metadata) {
-		const hasBow = metadata.hotbar.some(
+		const hasBow = bot.inventory.slots.some(
 			item => item && item.type === mcData.itemsByName['bow'].id
 		);
 		const hasArrows = bot.inventory.slots.some(

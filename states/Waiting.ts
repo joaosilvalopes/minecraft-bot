@@ -27,7 +27,7 @@ class Waiting extends State {
 
 	transitionImpl(bot, metadata) {
 		if (metadata.enemy) {
-			const hasBow = metadata.hotbar.some(
+			const hasBow = bot.inventory.slots.some(
 				item => item && item.type === mcData.itemsByName['bow'].id
 			);
 			const hasArrows = bot.inventory.slots.some(

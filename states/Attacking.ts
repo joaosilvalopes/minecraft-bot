@@ -12,7 +12,7 @@ const attack = throttle((bot, enemy) => {
 class Attacking extends State {
 	async execute(bot, metadata) {
 		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
-		const bestWeapon = metadata.hotbar.reduce(
+		const bestWeapon = bot.inventory.slots.reduce(
 			(bestWeapon, item, index) => {
 				if (!item) {
 					return bestWeapon;
@@ -30,7 +30,7 @@ class Attacking extends State {
 		);
 
 		if (bestWeapon.index !== -1) {
-			bot.setQuickBarSlot(bestWeapon.index);
+			await bot.fromSlotToHand(bestWeapon.index);
 		}
 
 		bot.setControlState('sprint', false);

@@ -13,13 +13,15 @@ class Falling extends State {
 		bot.setControlState('forward', false);
 		if (block && block.name !== 'air') {
 			await bot.look(0, -Math.PI / 2, true);
-			const bucketIndex = metadata.hotbar.findIndex(
+			const bucketIndex = bot.inventory.slots.findIndex(
 				item => item && item.type === mcData.itemsByName['water_bucket'].id
 			);
-			bucketIndex !== -1 && bot.setQuickBarSlot(bucketIndex);
-			await bot.activateItem();
+			if (bucketIndex !== -1) {
+				await bot.fromSlotToHand(bucketIndex);
+			}
+			bot.activateItem();
 			await sleep(350);
-			await bot.activateItem();
+			bot.activateItem();
 		}
 	}
 
