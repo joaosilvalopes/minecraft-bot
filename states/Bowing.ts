@@ -6,7 +6,9 @@ import { add } from '../utils/vec3';
 import { sleep } from '../utils/async';
 
 class Bowing extends State {
-	async execute(bot, metadata) {
+	async execute() {
+		const { bot, metadata } = this;
+
 		bot.setControlState('sprint', false);
 		bot.setControlState('jump', false);
 		bot.setControlState('forward', false);
@@ -56,7 +58,9 @@ class Bowing extends State {
 		}
 	}
 
-	transitionImpl(bot, metadata) {
+	transitionImpl() {
+		const { bot } = this;
+
 		const hasBow = bot.inventory.slots.some(
 			item => item && item.type === mcData.itemsByName['bow'].id
 		);

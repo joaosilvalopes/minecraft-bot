@@ -14,16 +14,6 @@ import plug from './plugins';
 
 const DEBUG_MODE = true;
 
-const states: Map<StateId, State> = Object.values(StateId).reduce(
-	(states, state) => {
-		const State = require(`./states/${state}`).default;
-
-		states.set(state, new State());
-		return states;
-	},
-	new Map()
-);
-
 dotenv.config();
 
 const [host, port, name] = process.argv.slice(2);
@@ -38,11 +28,6 @@ const bot = mineflayer.createBot({
 
 plug(bot);
 
-bot.on('error', err => console.log(err));
-
-let state: StateId = StateId.Waiting;
-let prevState: StateId;
-
 const metadata = {
 	enemy: undefined,
 	enemyVelocity: new Vec3(),
@@ -51,16 +36,31 @@ const metadata = {
 	arrowGravity: 0.000018
 };
 
+const states: Map<StateId, State> = Object.values(StateId).reduce(
+	(states, stateId) => {
+		const State = require(`./states/${stateId}`).default;
+
+		states.set(stateId, new State(bot, metadata));
+		return states;
+	},
+	new Map()
+);
+
+let stateId = StateId.Waiting;
+let prevStateId: StateId;
+
 const run = async () => {
-	if (prevState !== state) {
-		bot.chat(`Bot state: ${state}`);
+	if (prevStateId !== stateId) {
+		bot.chat(`Bot state: ${stateId}`);
 	}
 
-	prevState = state;
+	prevStateId = stateId;
 
-	await states.get(state).execute(bot, metadata);
+	const state = states.get(stateId);
 
-	state = states.get(state).transition(bot, metadata);
+	await state.execute();
+
+	stateId = state.transition();
 
 	metadata.bestPotSlot = bestPot().slot;
 
@@ -125,6 +125,8 @@ bot.on('spawn', () => setTimeout(run, 1000));
 
 bot.on('chat', (_, message) => {
 	if (DEBUG_MODE) {
-		state = StateId.Bowing;
+		stateId = states.has(message) ? message : stateId;
 	}
 });
+
+bot.on('error', err => console.log(err));

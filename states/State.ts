@@ -1,20 +1,28 @@
 import StateId from './StateId';
 
 abstract class State {
-	abstract async execute(bot, metadata): Promise<any>;
+	bot;
+	metadata;
 
-	abstract transitionImpl(bot, metadata): StateId;
+	constructor(bot, metadata) {
+		this.bot = bot;
+		this.metadata = metadata;
+	}
 
-	transition(bot, metadata): StateId {
-		if (bot.entity.velocity.y === -20) {
+	abstract async execute(): Promise<any>;
+
+	abstract transitionImpl(): StateId;
+
+	transition(): StateId {
+		if (this.bot.entity.velocity.y === -20) {
 			return StateId.Falling;
 		}
 
-		if (metadata.bestPotSlot !== -1) {
+		if (this.metadata.bestPotSlot !== -1) {
 			return StateId.Healing;
 		}
 
-		return this.transitionImpl(bot, metadata);
+		return this.transitionImpl();
 	}
 }
 

@@ -10,7 +10,9 @@ const attack = throttle((bot, enemy) => {
 }, 300);
 
 class Attacking extends State {
-	async execute(bot, metadata) {
+	async execute() {
+		const { bot, metadata } = this;
+
 		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
 		const bestWeapon = bot.inventory.slots.reduce(
 			(bestWeapon, item, index) => {
@@ -43,9 +45,9 @@ class Attacking extends State {
 		attack(bot, metadata.enemy);
 	}
 
-	transitionImpl(bot, metadata) {
+	transitionImpl() {
 		const farEnough =
-			bot.entity.position.distanceTo(metadata.enemy.position) > 2.7;
+			this.bot.entity.position.distanceTo(this.metadata.enemy.position) > 2.7;
 
 		return farEnough ? StateId.Chasing : StateId.Attacking;
 	}
