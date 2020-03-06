@@ -2,17 +2,25 @@
 	"name": "minecraft-bots",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "main.ts",
 	"scripts": {
-		"start": "nodemon main.js localhost"
+		"start": "ts-node-dev --respawn main.ts localhost"
 	},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@types/lodash": "^4.14.149",
+		"@types/node": "^13.7.7",
+		"@types/vec3": "0.0.29",
 		"dotenv": "^8.2.0",
 		"lodash": "^4.17.15",
 		"minecraft-data": "^2.41.0",
 		"mineflayer": "^2.11.0",
 		"mineflayer-navigate": "0.0.10"
+	},
+	"devDependencies": {
+		"ts-node": "^8.6.2",
+		"ts-node-dev": "^1.0.0-pre.44",
+		"typescript": "^3.8.3"
 	}
 }

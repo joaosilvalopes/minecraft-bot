@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	16421: {
 		splash: true,
 		healing: 8

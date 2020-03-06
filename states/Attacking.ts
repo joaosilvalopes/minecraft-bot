@@ -1,14 +1,16 @@
-const throttle = require('lodash/throttle');
-const { add } = require('../utils/vec3');
-const weapons = require('../weapons');
+import throttle from 'lodash/throttle';
+import State from './State';
+import { add } from '../utils/vec3';
+import weapons from '../weapons';
+import StateId from './StateId';
 
 const attack = throttle((bot, enemy) => {
 	bot.attack(enemy);
 	bot.swingArm();
 }, 300);
 
-module.exports = {
-	execute: async (bot, metadata) => {
+class Attacking extends State {
+	async execute(bot, metadata) {
 		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
 		const bestWeapon = metadata.hotbar.reduce(
 			(bestWeapon, item, index) => {
@@ -39,11 +41,14 @@ module.exports = {
 		);
 
 		attack(bot, metadata.enemy);
-	},
-	transition: (bot, metadata) => {
+	}
+
+	transitionImpl(bot, metadata) {
 		const farEnough =
 			bot.entity.position.distanceTo(metadata.enemy.position) > 2.7;
 
-		return farEnough ? 'chasing' : 'attacking';
+		return farEnough ? StateId.Chasing : StateId.Attacking;
 	}
-};
+}
+
+export default Attacking;

@@ -1,25 +1,28 @@
-const throttle = require('lodash/throttle');
-const mcData = require('minecraft-data')('1.8.9');
-const mineflayer = require('mineflayer');
-const { performance } = require('perf_hooks');
-const Vec3 = require('vec3');
-const util = require('util');
+import throttle from 'lodash/throttle';
+import mcData from './mcData';
+// @ts-ignore
+import mineflayer from 'mineflayer';
+import { performance } from 'perf_hooks';
+import Vec3 from 'vec3';
+import util from 'util';
+import dotenv from 'dotenv';
 
-const { subtract, divide } = require('./utils/vec3');
-const potions = require('./potions');
-const states = [
-	'attacking',
-	'bowing',
-	'chasing',
-	'falling',
-	'waiting',
-	'healing'
-].reduce(
-	(states, state) => ({ ...states, [state]: require(`./states/${state}`) }),
-	{}
+import { subtract, divide } from './utils/vec3';
+import potions from './potions';
+import StateId from './states/StateId';
+import State from './states/State';
+
+const states: Map<StateId, State> = Object.values(StateId).reduce(
+	(states, state) => {
+		const State = require(`./states/${state}`).default;
+
+		states.set(state, new State());
+		return states;
+	},
+	new Map()
 );
 
-require('dotenv').config();
+dotenv.config();
 
 const [host, port, name] = process.argv.slice(2);
 
@@ -36,18 +39,17 @@ bot.lookAt = util.promisify(bot.lookAt);
 
 bot.on('error', err => console.log(err));
 
-let state = 'waiting';
+let state: StateId = StateId.Waiting;
+let prevState: StateId;
 
 const metadata = {
 	enemy: undefined,
 	enemyVelocity: new Vec3(),
-	hotbary: [],
+	hotbar: [],
 	bestPotSlot: -1,
-	arrowSpeed: 0.038,
-	arrowGravity: 0.0000056
+	arrowSpeed: 0.055,
+	arrowGravity: 0.000018
 };
-
-let prevState;
 
 const run = async () => {
 	metadata.hotbar = bot.inventory.slots.slice(-9);
@@ -58,19 +60,11 @@ const run = async () => {
 
 	prevState = state;
 
-	await states[state].execute(bot, metadata);
+	await states.get(state).execute(bot, metadata);
 
-	state = states[state].transition(bot, metadata);
+	state = states.get(state).transition(bot, metadata);
 
 	metadata.bestPotSlot = bestPot().slot;
-
-	if (metadata.bestPotSlot !== -1) {
-		state = 'healing';
-	}
-
-	if (bot.entity.velocity.y === -20) {
-		state = 'falling';
-	}
 
 	computeEnemyVelocity();
 	setImmediate(run);
@@ -140,7 +134,7 @@ bot.on('chat', (_, message) => {
 		);
 
 		if (hasBow && hasArrows) {
-			state = 'bowing';
+			state = StateId.Bowing;
 		}
 	}
 });
