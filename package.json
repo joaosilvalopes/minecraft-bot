@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "main.ts",
 	"scripts": {
-		"start": "ts-node-dev --respawn main.ts localhost"
+		"start": "ts-node-dev --respawn main.ts pvpjs.aternos.me 25565"
 	},
 	"author": "",
 	"license": "ISC",

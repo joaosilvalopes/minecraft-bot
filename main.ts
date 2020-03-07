@@ -20,9 +20,9 @@ const [host, port, name] = process.argv.slice(2);
 
 const bot = mineflayer.createBot({
 	host,
-	username: name || 'bot', //process.env.MC_USERNAME,
-	// password: process.env.MC_PASSWORD,
-	port,
+	username: process.env.MC_USERNAME,
+	password: process.env.MC_PASSWORD,
+	port: 25565,
 	version: '1.8.9'
 });
 

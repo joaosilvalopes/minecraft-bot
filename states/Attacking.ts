@@ -7,7 +7,15 @@ import StateId from './StateId';
 const attack = throttle((bot, enemy) => {
 	bot.attack(enemy);
 	bot.swingArm();
-}, 300);
+}, 350);
+
+const strafe = throttle(bot => {
+	const [previousDir, dir] =
+		Math.random() > 0.5 ? ['left', 'right'] : ['right', 'left'];
+
+	bot.setControlState(dir, true);
+	bot.setControlState(previousDir, false);
+}, 500);
 
 class Attacking extends State {
 	async execute() {
@@ -42,6 +50,7 @@ class Attacking extends State {
 			bot.entity.position.distanceTo(metadata.enemy.position) > 2
 		);
 
+		strafe(bot);
 		attack(bot, metadata.enemy);
 	}
 
