@@ -18,16 +18,20 @@ const searchEnemy = bot =>
 	}, undefined);
 
 class Waiting extends State {
-	async execute(bot, metadata) {
+	async execute() {
+		const { bot, metadata } = this;
+
 		metadata.enemy = searchEnemy(bot);
 		bot.setControlState('sprint', false);
 		bot.setControlState('jump', false);
 		bot.setControlState('forward', false);
 	}
 
-	transitionImpl(bot, metadata) {
+	transitionImpl() {
+		const { bot, metadata } = this;
+
 		if (metadata.enemy) {
-			const hasBow = metadata.hotbar.some(
+			const hasBow = bot.inventory.slots.some(
 				item => item && item.type === mcData.itemsByName['bow'].id
 			);
 			const hasArrows = bot.inventory.slots.some(

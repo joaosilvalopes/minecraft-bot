@@ -1,4 +1,4 @@
 for i in 1 2 3 4 5 6; do
-    (npm run start 33875 $i) &
+    (npm run start 40799 $i) &
 done
 wait

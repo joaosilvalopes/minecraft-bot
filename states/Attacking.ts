@@ -10,9 +10,11 @@ const attack = throttle((bot, enemy) => {
 }, 300);
 
 class Attacking extends State {
-	async execute(bot, metadata) {
+	async execute() {
+		const { bot, metadata } = this;
+
 		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
-		const bestWeapon = metadata.hotbar.reduce(
+		const bestWeapon = bot.inventory.slots.reduce(
 			(bestWeapon, item, index) => {
 				if (!item) {
 					return bestWeapon;
@@ -30,7 +32,7 @@ class Attacking extends State {
 		);
 
 		if (bestWeapon.index !== -1) {
-			bot.setQuickBarSlot(bestWeapon.index);
+			await bot.fromSlotToHand(bestWeapon.index);
 		}
 
 		bot.setControlState('sprint', false);
@@ -43,9 +45,9 @@ class Attacking extends State {
 		attack(bot, metadata.enemy);
 	}
 
-	transitionImpl(bot, metadata) {
+	transitionImpl() {
 		const farEnough =
-			bot.entity.position.distanceTo(metadata.enemy.position) > 2.7;
+			this.bot.entity.position.distanceTo(this.metadata.enemy.position) > 2.7;
 
 		return farEnough ? StateId.Chasing : StateId.Attacking;
 	}
