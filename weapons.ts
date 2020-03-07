@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	wooden_shovel: 2.5,
 	wooden_pickaxe: 3,
 	wooden_axe: 4,

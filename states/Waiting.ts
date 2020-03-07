@@ -1,7 +1,9 @@
-const mcData = require('minecraft-data')('1.8.9');
+import State from './State';
+import StateId from './StateId';
+import mcData from '../mcData';
 
 const searchEnemy = bot =>
-	Object.values(bot.entities).reduce((enemy, entity) => {
+	Object.values(bot.entities).reduce((enemy: any, entity: any) => {
 		const isEnemy =
 			entity &&
 			entity.type === 'player' &&
@@ -15,14 +17,15 @@ const searchEnemy = bot =>
 		return isEnemy && isClosest ? entity : enemy;
 	}, undefined);
 
-module.exports = {
-	execute: async (bot, metadata) => {
+class Waiting extends State {
+	async execute(bot, metadata) {
 		metadata.enemy = searchEnemy(bot);
 		bot.setControlState('sprint', false);
 		bot.setControlState('jump', false);
 		bot.setControlState('forward', false);
-	},
-	transition: (bot, metadata) => {
+	}
+
+	transitionImpl(bot, metadata) {
 		if (metadata.enemy) {
 			const hasBow = metadata.hotbar.some(
 				item => item && item.type === mcData.itemsByName['bow'].id
@@ -31,9 +34,11 @@ module.exports = {
 				item => item && item.type === mcData.itemsByName['arrow'].id
 			);
 
-			return hasBow && hasArrows ? 'bowing' : 'chasing';
+			return hasBow && hasArrows ? StateId.Bowing : StateId.Chasing;
 		}
 
-		return 'waiting';
+		return StateId.Waiting;
 	}
-};
+}
+
+export default Waiting;
