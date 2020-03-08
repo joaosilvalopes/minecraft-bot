@@ -6,6 +6,7 @@ const plug = bot => {
 	bot.look = util.promisify(bot.look);
 	bot.lookAt = util.promisify(bot.lookAt);
 	bot.moveSlotItem = util.promisify(bot.moveSlotItem);
+	bot.placeBlock = util.promisify(bot.placeBlock);
 
 	bot.fromSlotToHand = async (slot: number) => {
 		if (slot < FIRST_HOTBAR_SLOT) {
