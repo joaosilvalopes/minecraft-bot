@@ -9,6 +9,8 @@ const rod = throttle(async bot => {
 		item => item && item.name === 'fishing_rod'
 	);
 
+	if(rodIndex === -1) return;
+
 	const slot = bot.quickBarSlot;
 
 	await bot.fromSlotToHand(rodIndex);
