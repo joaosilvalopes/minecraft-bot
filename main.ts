@@ -16,13 +16,13 @@ const DEBUG_MODE = true;
 
 dotenv.config();
 
-const [host, port, name] = process.argv.slice(2);
+const [host = '192.168.1.197', port = 25565] = process.argv.slice(2);
 
 const bot = mineflayer.createBot({
 	host,
-	username: name || process.env.MC_USERNAME,
-	password: process.env.MC_PASSWORD,
-	port: port || 25565,
+	username: 'NoComp_Fury' /*process.env.MC_USERNAME*/,
+	//password: process.env.MC_PASSWORD,
+	port,
 	version: '1.8.9'
 });
 
@@ -49,9 +49,13 @@ const states: Map<StateId, State> = Object.values(StateId).reduce(
 let stateId = StateId.Waiting;
 let prevStateId: StateId;
 
+const chat = throttle(message => {
+	bot.chat(message);
+}, 1000);
+
 const run = async () => {
 	if (prevStateId !== stateId) {
-		bot.chat(`Bot state: ${stateId}`);
+		chat(`Bot state: ${stateId}`);
 	}
 
 	prevStateId = stateId;
@@ -111,7 +115,7 @@ const computeEnemyVelocity = throttle(() => {
 }, 100);
 
 bot.on('health', () => {
-	bot.chat(`Bot hp: ${bot.health}`);
+	chat(`Bot hp: ${bot.health}`);
 });
 
 // Update enemy object reference on enemy death (needed since the reference changes on enemy death)
