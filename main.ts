@@ -1,11 +1,12 @@
 import throttle from 'lodash/throttle';
 // @ts-ignore
 import mineflayer from 'mineflayer';
+import armorManager from 'mineflayer-armor-manager';
 import { performance } from 'perf_hooks';
-import Vec3 from 'vec3';
+import { Vec3 } from 'vec3';
 import dotenv from 'dotenv';
 
-import { subtract, divide } from './utils/vec3';
+import { minus, divide } from './utils/vec3';
 import StateId from './states/StateId';
 import State from './states/State';
 import potions from './potions';
@@ -27,10 +28,13 @@ const bot = mineflayer.createBot({
 });
 
 plug(bot);
+armorManager(bot, {
+	version: '1.8.9'
+});
 
 const metadata = {
 	enemy: undefined,
-	enemyVelocity: new Vec3(),
+	enemyVelocity: new Vec3(0, 0, 0),
 	bestPotSlot: -1,
 	arrowSpeed: 0.055,
 	arrowGravity: 0.000018
@@ -56,13 +60,13 @@ const chat = throttle(message => {
 const run = async () => {
 	if (prevStateId !== stateId) {
 		chat(`Bot state: ${stateId}`);
-		bot.clearControlStates();
 	}
 
 	prevStateId = stateId;
 
 	const state = states.get(stateId);
 
+	bot.clearControlStates();
 	await state.execute();
 
 	stateId = state.transition();
@@ -99,7 +103,7 @@ const bestPot = () =>
 		{ healing: -Infinity, slot: -1 }
 	);
 
-let previousEnemyPosition = new Vec3();
+let previousEnemyPosition = {};
 let previousTime = 0;
 
 const computeEnemyVelocity = throttle(() => {
@@ -107,7 +111,7 @@ const computeEnemyVelocity = throttle(() => {
 		const currentTime = performance.now();
 		const timePassed = currentTime - previousTime;
 		metadata.enemyVelocity = divide(
-			subtract(metadata.enemy.position, previousEnemyPosition),
+			minus(metadata.enemy.position, previousEnemyPosition),
 			timePassed
 		);
 		previousEnemyPosition = { ...metadata.enemy.position };
