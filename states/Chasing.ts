@@ -9,7 +9,7 @@ const rod = throttle(async bot => {
 		item => item && item.name === 'fishing_rod'
 	);
 
-	if(rodIndex === -1) return;
+	if (rodIndex === -1) return;
 
 	const slot = bot.quickBarSlot;
 
@@ -25,7 +25,7 @@ class Chasing extends State {
 		const { bot, metadata } = this;
 
 		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
-		bot.setControlState('sprint', false);
+		bot.setControlState('sprint', true);
 		bot.setControlState('jump', true);
 		bot.setControlState('forward', true);
 
