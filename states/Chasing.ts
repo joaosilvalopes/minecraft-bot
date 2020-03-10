@@ -1,6 +1,6 @@
 import State from './State';
 import StateId from './StateId';
-import { add } from '../utils/vec3';
+import { plus } from '../utils/vec3';
 import throttle from 'lodash/throttle';
 import { sleep } from '../utils/async';
 
@@ -24,7 +24,7 @@ class Chasing extends State {
 	async execute() {
 		const { bot, metadata } = this;
 
-		bot.lookAt(add(metadata.enemy.position, { y: metadata.enemy.height }));
+		bot.lookAt(plus(metadata.enemy.position, { y: metadata.enemy.height }));
 		bot.setControlState('sprint', true);
 		bot.setControlState('jump', true);
 		bot.setControlState('forward', true);
