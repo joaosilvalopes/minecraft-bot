@@ -1,17 +1,13 @@
-import Vec3 from 'vec3';
+import { Vec3 } from 'vec3';
 import State from './State';
 import StateId from './StateId';
 import mcData from '../mcData';
-import { add } from '../utils/vec3';
+import { plus } from '../utils/vec3';
 import { sleep } from '../utils/async';
 
 class Bowing extends State {
 	async execute() {
 		const { bot, metadata } = this;
-
-		bot.setControlState('sprint', false);
-		bot.setControlState('jump', false);
-		bot.setControlState('forward', false);
 
 		const bowIndex = bot.inventory.slots.findIndex(
 			item => item && item.type === mcData.itemsByName['bow'].id
@@ -41,7 +37,7 @@ class Bowing extends State {
 			);
 			await sleep(1100);
 			await bot.lookAt(
-				add(metadata.enemy.position, {
+				plus(metadata.enemy.position, {
 					x: enemyVelocity.x * travelTime,
 					z: enemyVelocity.z * travelTime,
 					y: enemyVelocity.y * travelTime + metadata.enemy.height

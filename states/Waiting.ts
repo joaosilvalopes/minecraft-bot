@@ -22,9 +22,6 @@ class Waiting extends State {
 		const { bot, metadata } = this;
 
 		metadata.enemy = searchEnemy(bot);
-		bot.setControlState('sprint', false);
-		bot.setControlState('jump', false);
-		bot.setControlState('forward', false);
 	}
 
 	transitionImpl() {

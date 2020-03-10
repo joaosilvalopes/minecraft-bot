@@ -2,11 +2,12 @@ import util from 'util';
 
 const FIRST_HOTBAR_SLOT = 36;
 
+const promisifiedMethods = ['look', 'lookAt', 'moveSlotItem', 'placeBlock'];
+
 const plug = bot => {
-	bot.look = util.promisify(bot.look);
-	bot.lookAt = util.promisify(bot.lookAt);
-	bot.moveSlotItem = util.promisify(bot.moveSlotItem);
-	bot.placeBlock = util.promisify(bot.placeBlock);
+	for (const method of promisifiedMethods) {
+		bot[method] = util.promisify(bot[method]);
+	}
 
 	bot.fromSlotToHand = async (slot: number) => {
 		if (slot < FIRST_HOTBAR_SLOT) {

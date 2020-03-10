@@ -1,7 +1,6 @@
 import State from './State';
 import StateId from './StateId';
 import mcData from '../mcData';
-import Vec3 from 'vec3';
 import { sleep } from '../utils/async';
 
 class Falling extends State {
@@ -10,10 +9,6 @@ class Falling extends State {
 
 		await bot.look(0, -Math.PI / 2, true);
 		const block = bot.blockInSight();
-
-		bot.setControlState('sprint', false);
-		bot.setControlState('jump', false);
-		bot.setControlState('forward', false);
 
 		if (
 			block &&
