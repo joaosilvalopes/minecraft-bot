@@ -43,8 +43,6 @@ class Attacking extends State {
 			await bot.fromSlotToHand(bestWeapon.index);
 		}
 
-		bot.setControlState('sprint', false);
-		bot.setControlState('jump', false);
 		bot.setControlState(
 			'forward',
 			bot.entity.position.distanceTo(metadata.enemy.position) > 2

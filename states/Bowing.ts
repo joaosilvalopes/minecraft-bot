@@ -9,10 +9,6 @@ class Bowing extends State {
 	async execute() {
 		const { bot, metadata } = this;
 
-		bot.setControlState('sprint', false);
-		bot.setControlState('jump', false);
-		bot.setControlState('forward', false);
-
 		const bowIndex = bot.inventory.slots.findIndex(
 			item => item && item.type === mcData.itemsByName['bow'].id
 		);

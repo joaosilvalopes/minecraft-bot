@@ -56,6 +56,7 @@ const chat = throttle(message => {
 const run = async () => {
 	if (prevStateId !== stateId) {
 		chat(`Bot state: ${stateId}`);
+		bot.clearControlStates();
 	}
 
 	prevStateId = stateId;
