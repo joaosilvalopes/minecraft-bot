@@ -17,10 +17,11 @@ class Bowing extends State {
 			await bot.fromSlotToHand(bowIndex);
 			bot.activateItem();
 			const distance = metadata.enemy.position.distanceTo(bot.entity.position);
-			const horizontalDistance = new Vec3({
-				...metadata.enemy.position,
-				y: 0
-			}).distanceTo({ ...bot.entity.position, y: 0 });
+			const horizontalDistance = new Vec3(
+				metadata.enemy.position.x,
+				0,
+				metadata.enemy.position.z
+			).distanceTo({ ...bot.entity.position, y: 0 });
 			const verticalDistance =
 				Math.abs(metadata.enemy.position.y - bot.entity.position.y) - 1;
 			const { arrowSpeed, arrowGravity, enemyVelocity } = metadata;
