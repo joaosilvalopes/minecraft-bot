@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "main.ts",
 	"scripts": {
-		"start": "ts-node-dev --respawn main.ts"
+		"start": "ts-node-dev --respawn main.ts",
+		"build": "tsc && minify-all build"
 	},
 	"author": "",
 	"license": "ISC",
@@ -21,6 +22,7 @@
 	"devDependencies": {
 		"ts-node": "^8.6.2",
 		"ts-node-dev": "^1.0.0-pre.44",
-		"typescript": "^3.8.3"
+		"typescript": "^3.8.3",
+		"uglify-js": "^3.8.0"
 	}
 }
