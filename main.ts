@@ -17,7 +17,11 @@ const DEBUG_MODE = true;
 
 dotenv.config();
 
-const [host = '192.168.1.74', port = 25565, username = 'NoComp_Fury'] = process.argv.slice(2);
+const [
+	host = process.env.HOST || 'localhost',
+	port = process.env.PORT || 25565,
+	username = process.env.MC_USERNAME || 'NoComp_Fury'
+] = process.argv.slice(2);
 
 const bot = mineflayer.createBot({
 	host,
