@@ -55,7 +55,7 @@ const states: Map<StateId, State> = Object.values(StateId).reduce(
 );
 
 let stateId = StateId.Waiting;
-let prevStateId: StateId;
+let prevStateId = StateId.Waiting;
 
 const chat = throttle(message => {
 	bot.chat(message);
@@ -63,6 +63,8 @@ const chat = throttle(message => {
 
 const run = async () => {
 	if (prevStateId !== stateId) {
+		bot.clearControlStates();
+		states.get(prevStateId).throttled.forEach(t => t.cancel());
 		chat(`Bot state: ${stateId}`);
 	}
 
@@ -70,7 +72,6 @@ const run = async () => {
 
 	const state = states.get(stateId);
 
-	bot.clearControlStates();
 	await state.execute();
 
 	stateId = state.transition();

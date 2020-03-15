@@ -42,6 +42,8 @@ class Chasing extends State {
 
 		return closeEnough ? StateId.Attacking : StateId.Chasing;
 	}
+
+	throttled = [rod];
 }
 
 export default Chasing;

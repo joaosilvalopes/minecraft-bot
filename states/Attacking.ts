@@ -5,6 +5,7 @@ import weapons from '../weapons';
 import StateId from './StateId';
 
 const attack = throttle((bot, enemy) => {
+	bot.useOn(enemy);
 	bot.attack(enemy);
 	bot.swingArm();
 }, 350);
@@ -58,6 +59,8 @@ class Attacking extends State {
 
 		return farEnough ? StateId.Chasing : StateId.Attacking;
 	}
+
+	throttled = [attack, strafe];
 }
 
 export default Attacking;

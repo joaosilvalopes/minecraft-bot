@@ -1,8 +1,10 @@
 import StateId from './StateId';
+import { Cancelable } from 'lodash';
 
 abstract class State {
 	bot;
 	metadata;
+	throttled: Cancelable[] = [];
 
 	constructor(bot, metadata) {
 		this.bot = bot;
