@@ -4,6 +4,7 @@ enum StateId {
 	Chasing = 'Chasing',
 	Falling = 'Falling',
 	Healing = 'Healing',
+	Gapping = 'Gapping',
 	Waiting = 'Waiting'
 }
 

@@ -24,8 +24,14 @@ abstract class State {
 			return StateId.Healing;
 		}
 
+		if (this.metadata.gapSlot !== -1) {
+			return StateId.Gapping;
+		}
+
 		return this.transitionImpl();
 	}
+
+	init(): void {}
 }
 
 export default State;

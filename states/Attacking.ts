@@ -5,7 +5,6 @@ import weapons from '../weapons';
 import StateId from './StateId';
 
 const attack = throttle((bot, enemy) => {
-	bot.useOn(enemy);
 	bot.attack(enemy);
 	bot.swingArm();
 }, 350);
@@ -44,6 +43,7 @@ class Attacking extends State {
 			await bot.fromSlotToHand(bestWeapon.index);
 		}
 
+		bestWeapon.index !== -1 && bot.activateItem(); // block hitting
 		bot.setControlState(
 			'forward',
 			bot.entity.position.distanceTo(metadata.enemy.position) > 2

@@ -41,7 +41,8 @@ const metadata = {
 	enemyVelocity: new Vec3(0, 0, 0),
 	bestPotSlot: -1,
 	arrowSpeed: 0.055,
-	arrowGravity: 0.000018
+	arrowGravity: 0.000018,
+	gapSlot: -1
 };
 
 const states: Map<StateId, State> = Object.values(StateId).reduce(
@@ -62,21 +63,29 @@ const chat = throttle(message => {
 }, 1000);
 
 const run = async () => {
+	const state = states.get(stateId);
+
 	if (prevStateId !== stateId) {
 		bot.clearControlStates();
 		states.get(prevStateId).throttled.forEach(t => t.cancel());
 		chat(`Bot state: ${stateId}`);
+		state.init();
 	}
 
 	prevStateId = stateId;
-
-	const state = states.get(stateId);
 
 	await state.execute();
 
 	stateId = state.transition();
 
 	metadata.bestPotSlot = bestPot().slot;
+
+	metadata.gapSlot =
+		bot.health > 16
+			? -1
+			: bot.inventory.slots.findIndex(
+					item => item && item.name === 'golden_apple'
+			  );
 
 	computeEnemyVelocity();
 	setImmediate(run);

@@ -51,6 +51,7 @@ class Bowing extends State {
 			bot.setControlState('jump', true);
 			bot.setControlState(strafeDir, true);
 			await sleep(200);
+			bot.setControlState('jump', false);
 			bot.setControlState(strafeDir, false);
 		}
 	}

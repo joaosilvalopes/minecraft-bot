@@ -2,7 +2,13 @@ import util from 'util';
 
 const FIRST_HOTBAR_SLOT = 36;
 
-const promisifiedMethods = ['look', 'lookAt', 'moveSlotItem', 'placeBlock'];
+const promisifiedMethods = [
+	'look',
+	'lookAt',
+	'moveSlotItem',
+	'placeBlock',
+	'consume'
+];
 
 const plug = bot => {
 	for (const method of promisifiedMethods) {

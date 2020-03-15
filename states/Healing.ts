@@ -7,8 +7,18 @@ class Healing extends State {
 		const { bot, metadata } = this;
 
 		if (metadata.bestPotSlot !== -1) {
+			await bot.look(
+				bot.entity.yaw < 0
+					? bot.entity.yaw + Math.PI
+					: bot.entity.yaw - Math.PI,
+				-Math.PI / 2,
+				true
+			);
+			bot.setControlState('forward', true);
+			bot.setControlState('sprint', true);
+			bot.setControlState('jump', true);
+			await sleep(1000);
 			await bot.fromSlotToHand(metadata.bestPotSlot);
-			await bot.lookAt(bot.entity.position, true);
 			bot.activateItem();
 			await sleep(300);
 		}
