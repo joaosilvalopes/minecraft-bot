@@ -5,7 +5,7 @@
 	"main": "main.ts",
 	"scripts": {
 		"start": "ts-node-dev --respawn main.ts",
-		"build": "tsc --build && npm i && rm -R build/node_modules/ && minify-all build && cp -R node_modules build/node_modules "
+		"build": "tsc --build && npm i && rm -R build/node_modules/ && minify-all build && cp -R node_modules build/node_modules && zip -r build.zip build"
 	},
 	"author": "",
 	"license": "ISC",
