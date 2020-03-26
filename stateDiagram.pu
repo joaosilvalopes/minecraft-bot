@@ -1,0 +1,18 @@
+
+  @startuml
+    [*] --> Waiting
+    Attacking --> Attacking
+    Attacking --> Chasing
+    Bowing --> Bowing
+    Bowing --> Waiting
+    Chasing --> Attacking
+    Chasing --> Chasing
+    Falling --> Falling
+    Falling --> Waiting
+    Healing --> Waiting
+    Gapping --> Gapping
+    Gapping --> Waiting
+    Waiting --> Bowing
+    Waiting --> Chasing
+    Waiting --> Waiting
+  @enduml
