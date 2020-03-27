@@ -1,7 +1,6 @@
 import throttle from 'lodash/throttle';
 // @ts-ignore
 import mineflayer from 'mineflayer';
-import armorManager from 'mineflayer-armor-manager';
 import { performance } from 'perf_hooks';
 import { Vec3 } from 'vec3';
 import dotenv from 'dotenv';
@@ -32,9 +31,6 @@ const bot = mineflayer.createBot({
 });
 
 plug(bot);
-armorManager(bot, {
-	version: '1.8.9'
-});
 
 const metadata = {
 	enemy: undefined,

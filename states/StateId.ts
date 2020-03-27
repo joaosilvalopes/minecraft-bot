@@ -5,7 +5,8 @@ enum StateId {
 	Falling = 'Falling',
 	Healing = 'Healing',
 	Gapping = 'Gapping',
-	Waiting = 'Waiting'
+	Waiting = 'Waiting',
+	Towering = 'Towering'
 }
 
 export default StateId;
