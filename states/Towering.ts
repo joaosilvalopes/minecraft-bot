@@ -27,14 +27,13 @@ class Towering extends State {
         bot.lookAt(bot.entity.position);
         bot.setControlState('jump', true);
 
-        let hasBlockInHand = await this.moveBlocksToHand();
+        const hasBlockInHand = await this.moveBlocksToHand();
         while (hasBlockInHand) {
             try {
                 const block = bot.blockInSight();
                 await bot.placeBlock(block, new Vec3(0, 1, 0));
                 break;
             } catch (e) {
-                hasBlockInHand = await this.moveBlocksToHand();
             }
         }
     }
